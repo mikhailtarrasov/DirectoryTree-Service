@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using DataAccess.Domain.Entity;
-using System.Web.Script.Serialization;
 
 namespace DataAccess
 {
@@ -27,7 +26,7 @@ namespace DataAccess
                     {
                         result.CodeNotePair = new KeyValuePair<int, string>(400, "Элемент \"" + id + "\" уже существует");
                     }
-                    else if (parentId != null && parentNode == null)
+                    else                                            //if (parentId != null && parentNode == null)
                     {
                         result.CodeNotePair = new KeyValuePair<int, string>(400, "Нет элемента с Id \"" + parentId + "\"");
                     }
@@ -49,11 +48,10 @@ namespace DataAccess
                 {
                     var node = EfClient.GetTreeNodeById(id);
                     var newParentNode = EfClient.GetTreeNodeById(parentId);
-                    bool loop;
 
                     if (node != null && (parentId == null || newParentNode != null))
                     {
-                        loop = IsLoopExist(node, parentId);
+                        var loop = IsLoopExist(node, parentId);
                         if (loop)
                             result.CodeNotePair = new KeyValuePair<int, string>(400, "Петля");
                         else
@@ -83,6 +81,7 @@ namespace DataAccess
                 try
                 {
                     var subTree = EfClient.GetTreeNodeById(id);
+                    result.CodeNotePair = new KeyValuePair<int, string>(200, "");   // Если что-то пойдёт не так, значение изменится
                     if (id == null)
                         EfClient.DeleteAllNodes();
                     else if (subTree == null)
@@ -105,20 +104,22 @@ namespace DataAccess
             {
                 try
                 {
-                    var subTree = EfClient.GetSubTreeByRootId(id);
                     var resultSubTree = new List<Node>();
                     if (id != null)
                     {
+                        var subTree = EfClient.GetSubTreeByRootId(id);
                         if (subTree.Count == 0)
                             result.CodeNotePair = new KeyValuePair<int, string>(400, "Нет элемента с Id \"" + id + "\"");
                         else resultSubTree.Add(subTree[0]);
                     }
                     else resultSubTree = EfClient.GetAllTree();
-                    result.SubTree = new JavaScriptSerializer().Serialize(resultSubTree);
+                    if (resultSubTree.Count >= 0) result.CodeNotePair = new KeyValuePair<int, string>(200, "");
+                    result.SubTree = resultSubTree;
                 }
                 catch
                 {
                     result.CodeNotePair = new KeyValuePair<int, string>(500, "Ошибка!");
+                    throw;
                 }
             }
             return result;

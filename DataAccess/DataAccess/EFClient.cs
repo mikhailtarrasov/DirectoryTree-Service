@@ -22,7 +22,7 @@ namespace DataAccess
 
         public void CreateTreeNode(string newNodeId, string parentNodeId)
         {
-            var newNode = new TreeNode() {Id = newNodeId};
+            var newNode = new TreeNode() {Id = newNodeId, Children = new List<TreeNode>()};
 
             if (parentNodeId != null)
             {
@@ -73,6 +73,7 @@ namespace DataAccess
         public void DeleteAllNodes()        
         {
             Context.TreeNodes.RemoveRange(Context.TreeNodes);
+            Context.SaveChanges();
         }
 
         public TreeNode GetTreeNodeById(string id)
@@ -105,7 +106,7 @@ namespace DataAccess
 
         public List<Node> GetAllTree()
         {
-            var rootNodes = Context.TreeNodes.Where(x => x.Parent == null);
+            var rootNodes = Context.TreeNodes.Where(x => x.Parent == null).ToList();
             var result = new List<Node>();
             foreach (var node in rootNodes)
             {
