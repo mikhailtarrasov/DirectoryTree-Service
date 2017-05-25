@@ -91,22 +91,27 @@ namespace DataAccess
         private List<Node> TreeNodeToNode(TreeNode root)
         {
             var result = new List<Node>();
-            var newSubTreeRoot = new Node() {id = root.Id};
-            result.Add(newSubTreeRoot);
-            if (root.Children.Count > 0)
-                newSubTreeRoot.childs = new List<Node>();
 
-            foreach (var child in root.Children)
+            if (root != null)
             {
-                var a = TreeNodeToNode(child);
-                newSubTreeRoot.childs.AddRange(a);
+                var newSubTreeRoot = new Node() { id = root.Id };
+                result.Add(newSubTreeRoot);
+                if (root.Children.Count > 0)
+                    newSubTreeRoot.childs = new List<Node>();
+
+                foreach (var child in root.Children)
+                {
+                    var a = TreeNodeToNode(child);
+                    newSubTreeRoot.childs.AddRange(a);
+                }
             }
+            
             return result;
         }
 
         public List<Node> GetAllTree()
         {
-            var rootNodes = Context.TreeNodes.Where(x => x.Parent == null).ToList();
+                var rootNodes = Context.TreeNodes.Where(x => x.Parent == null).ToList();
             var result = new List<Node>();
             foreach (var node in rootNodes)
             {
